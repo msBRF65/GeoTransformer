@@ -1,0 +1,44 @@
+diff --git a/exec.sh b/exec.sh
+index 2af7156..bacab24 100644
+--- a/exec.sh
++++ b/exec.sh
+@@ -1,5 +1,11 @@
+ #!/bin/sh
+-pip install -r requirements.txt
+-python setup.py build develop
++# [Optional] If you are using CUDA 11.0 or newer, please install `torch==1.7.1+cu110`
++pip install torch==1.7.1+cu110 -f https://download.pytorch.org/whl/torch_stable.html
+ 
+-CUDA_VISIBLE_DEVICES=0 python test.py --test_iter=1
+\ No newline at end of file
++# Install packages and other dependencies
++pip install -r /repo/requirements.txt
++cd /workspace
++python /repo/setup.py build develop
++
++CUDA_VISIBLE_DEVICES=0 
++python /repo/experiments/geotransformer.kitti.stage5.gse.k3.max.oacl.stage2.sinkhorn/eval.py --test_epoch=1 --method=lgr
+\ No newline at end of file
+diff --git a/setup.py b/setup.py
+index bfb00b9..134d4c7 100644
+--- a/setup.py
++++ b/setup.py
+@@ -9,12 +9,12 @@ setup(
+         CUDAExtension(
+             name='geotransformer.ext',
+             sources=[
+-                'geotransformer/extensions/extra/cloud/cloud.cpp',
+-                'geotransformer/extensions/cpu/grid_subsampling/grid_subsampling.cpp',
+-                'geotransformer/extensions/cpu/grid_subsampling/grid_subsampling_cpu.cpp',
+-                'geotransformer/extensions/cpu/radius_neighbors/radius_neighbors.cpp',
+-                'geotransformer/extensions/cpu/radius_neighbors/radius_neighbors_cpu.cpp',
+-                'geotransformer/extensions/pybind.cpp',
++                '/repo/geotransformer/extensions/extra/cloud/cloud.cpp',
++                '/repo/geotransformer/extensions/cpu/grid_subsampling/grid_subsampling.cpp',
++                '/repo/geotransformer/extensions/cpu/grid_subsampling/grid_subsampling_cpu.cpp',
++                '/repo/geotransformer/extensions/cpu/radius_neighbors/radius_neighbors.cpp',
++                '/repo/geotransformer/extensions/cpu/radius_neighbors/radius_neighbors_cpu.cpp',
++                '/repo/geotransformer/extensions/pybind.cpp',
+             ],
+         ),
+     ],
