@@ -1,0 +1,18 @@
+diff --git a/exec.sh b/exec.sh
+index 2af7156..d7e07ee 100644
+--- a/exec.sh
++++ b/exec.sh
+@@ -1,5 +1,8 @@
+ #!/bin/sh
+-pip install -r requirements.txt
+-python setup.py build develop
++pip install -r /repo/requirements.txt
++cd /workspace
++sudo mkdir build && cd build
++python /repo/setup.py build_ext --inplace
+ 
+-CUDA_VISIBLE_DEVICES=0 python test.py --test_iter=1
+\ No newline at end of file
++CUDA_VISIBLE_DEVICES=0 
++python /repo/experiments/geotransformer.kitti.stage5.gse.k3.max.oacl.stage2.sinkhorn/eval.py --test_epoch=1 --method=lgr
+\ No newline at end of file
