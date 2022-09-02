@@ -1,0 +1,70 @@
+diff --git a/exec.sh b/exec.sh
+index 2af7156..cae0aa4 100644
+--- a/exec.sh
++++ b/exec.sh
+@@ -1,5 +1,12 @@
+ #!/bin/sh
+-pip install -r requirements.txt
+-python setup.py build develop
++# [Optional] If you are using CUDA 11.0 or newer, please install `torch==1.7.1+cu110`
++pip install torch==1.7.1+cu110 -f https://download.pytorch.org/whl/torch_stable.html
+ 
+-CUDA_VISIBLE_DEVICES=0 python test.py --test_iter=1
+\ No newline at end of file
++# Install packages and other dependencies
++cd /repo
++python /repo/setup.py build develop -build-lib=/repo/
++pip install coloredlogs
++pip install einops
++
++CUDA_VISIBLE_DEVICES=0 
++python /repo/geotransformer.3dmatch.stage4.gse.k3.max.oacl.stage2.sinkhorn/demo.py --src_file=/repo/dataset/scan_data.npy --ref_file=/repo/dataset/map_data.npy --gt_file=/repo/dataset/T03.npy --weights=/repo/weights/geotransformer-kitti.pth.tar
+\ No newline at end of file
+diff --git a/experiments/geotransformer.3dmatch.stage4.gse.k3.max.oacl.stage2.sinkhorn/demo.py b/experiments/geotransformer.3dmatch.stage4.gse.k3.max.oacl.stage2.sinkhorn/demo.py
+index 8664574..6e478b8 100644
+--- a/experiments/geotransformer.3dmatch.stage4.gse.k3.max.oacl.stage2.sinkhorn/demo.py
++++ b/experiments/geotransformer.3dmatch.stage4.gse.k3.max.oacl.stage2.sinkhorn/demo.py
+@@ -76,16 +76,17 @@ def main():
+     ref_pcd.estimate_normals()
+     ref_pcd.paint_uniform_color(get_color("custom_yellow"))
+     src_pcd = make_open3d_point_cloud(src_points)
++    src_pcd.transform(transform)
+     src_pcd.estimate_normals()
+     src_pcd.paint_uniform_color(get_color("custom_blue"))
+-    draw_geometries(ref_pcd, src_pcd)
++    # draw_geometries(ref_pcd, src_pcd)
+     src_pcd = src_pcd.transform(estimated_transform)
+-    draw_geometries(ref_pcd, src_pcd)
++    # draw_geometries(ref_pcd, src_pcd)
+ 
+     # compute error
+     rre, rte = compute_registration_error(transform, estimated_transform)
+     print(f"RRE(deg): {rre:.3f}, RTE(m): {rte:.3f}")
+-
++    np.save("/mnt/vol21/i22_msbrf65/dataset/T03_est_geo_katti", estimated_transform)
+ 
+ if __name__ == "__main__":
+     main()
+diff --git a/setup.py b/setup.py
+index bfb00b9..134d4c7 100644
+--- a/setup.py
++++ b/setup.py
+@@ -9,12 +9,12 @@ setup(
+         CUDAExtension(
+             name='geotransformer.ext',
+             sources=[
+-                'geotransformer/extensions/extra/cloud/cloud.cpp',
+-                'geotransformer/extensions/cpu/grid_subsampling/grid_subsampling.cpp',
+-                'geotransformer/extensions/cpu/grid_subsampling/grid_subsampling_cpu.cpp',
+-                'geotransformer/extensions/cpu/radius_neighbors/radius_neighbors.cpp',
+-                'geotransformer/extensions/cpu/radius_neighbors/radius_neighbors_cpu.cpp',
+-                'geotransformer/extensions/pybind.cpp',
++                '/repo/geotransformer/extensions/extra/cloud/cloud.cpp',
++                '/repo/geotransformer/extensions/cpu/grid_subsampling/grid_subsampling.cpp',
++                '/repo/geotransformer/extensions/cpu/grid_subsampling/grid_subsampling_cpu.cpp',
++                '/repo/geotransformer/extensions/cpu/radius_neighbors/radius_neighbors.cpp',
++                '/repo/geotransformer/extensions/cpu/radius_neighbors/radius_neighbors_cpu.cpp',
++                '/repo/geotransformer/extensions/pybind.cpp',
+             ],
+         ),
+     ],
