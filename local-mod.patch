@@ -1,0 +1,66 @@
+diff --git a/exec.sh b/exec.sh
+index 2af7156..26c65b1 100644
+--- a/exec.sh
++++ b/exec.sh
+@@ -1,5 +1,12 @@
+ #!/bin/sh
+-pip install -r requirements.txt
+-python setup.py build develop
++# [Optional] If you are using CUDA 11.0 or newer, please install `torch==1.7.1+cu110`
++pip install torch==1.7.1+cu110 -f https://download.pytorch.org/whl/torch_stable.html
+ 
+-CUDA_VISIBLE_DEVICES=0 python test.py --test_iter=1
+\ No newline at end of file
++# Install packages and other dependencies
++cd /repo
++python /repo/setup.py build develop -build-lib=/repo/
++pip install coloredlogs
++pip install einops
++
++CUDA_VISIBLE_DEVICES=0 
++python /repo/experiments/geotransformer.3dmatch.stage4.gse.k3.max.oacl.stage2.sinkhorn/demo.py --src_file=/mnt/vol21/i22_msbrf65/dataset/scan_data.npy --ref_file=/mnt/vol21/i22_msbrf65/dataset/map_data.npy --gt_file=/mnt/vol21/i22_msbrf65/dataset/T03.npy --weights=/repo/weight/geotransformer-kitti.pth.tar
+\ No newline at end of file
+diff --git a/experiments/geotransformer.3dmatch.stage4.gse.k3.max.oacl.stage2.sinkhorn/demo.py b/experiments/geotransformer.3dmatch.stage4.gse.k3.max.oacl.stage2.sinkhorn/demo.py
+index 8664574..81b9251 100644
+--- a/experiments/geotransformer.3dmatch.stage4.gse.k3.max.oacl.stage2.sinkhorn/demo.py
++++ b/experiments/geotransformer.3dmatch.stage4.gse.k3.max.oacl.stage2.sinkhorn/demo.py
+@@ -2,6 +2,7 @@ import argparse
+ 
+ import torch
+ import numpy as np
++import open3d
+ 
+ from geotransformer.utils.data import registration_collate_fn_stack_mode
+ from geotransformer.utils.torch import to_cuda, release_cuda
+@@ -85,7 +86,7 @@ def main():
+     # compute error
+     rre, rte = compute_registration_error(transform, estimated_transform)
+     print(f"RRE(deg): {rre:.3f}, RTE(m): {rte:.3f}")
+-
++    np.save("/mnt/vol21/i22_msbrf65/dataset/T03_est_geo_kitti", estimated_transform)
+ 
+ if __name__ == "__main__":
+     main()
+diff --git a/setup.py b/setup.py
+index bfb00b9..134d4c7 100644
+--- a/setup.py
++++ b/setup.py
+@@ -9,12 +9,12 @@ setup(
+         CUDAExtension(
+             name='geotransformer.ext',
+             sources=[
+-                'geotransformer/extensions/extra/cloud/cloud.cpp',
+-                'geotransformer/extensions/cpu/grid_subsampling/grid_subsampling.cpp',
+-                'geotransformer/extensions/cpu/grid_subsampling/grid_subsampling_cpu.cpp',
+-                'geotransformer/extensions/cpu/radius_neighbors/radius_neighbors.cpp',
+-                'geotransformer/extensions/cpu/radius_neighbors/radius_neighbors_cpu.cpp',
+-                'geotransformer/extensions/pybind.cpp',
++                '/repo/geotransformer/extensions/extra/cloud/cloud.cpp',
++                '/repo/geotransformer/extensions/cpu/grid_subsampling/grid_subsampling.cpp',
++                '/repo/geotransformer/extensions/cpu/grid_subsampling/grid_subsampling_cpu.cpp',
++                '/repo/geotransformer/extensions/cpu/radius_neighbors/radius_neighbors.cpp',
++                '/repo/geotransformer/extensions/cpu/radius_neighbors/radius_neighbors_cpu.cpp',
++                '/repo/geotransformer/extensions/pybind.cpp',
+             ],
+         ),
+     ],
